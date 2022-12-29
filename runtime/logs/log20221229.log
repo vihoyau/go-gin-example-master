@@ -1,0 +1,4 @@
+[INFO][request.go:12]2022/12/29 00:04:38 [Name.Required Can not be empty]
+[INFO][request.go:12]2022/12/29 00:04:38 [CreatedBy.Required Can not be empty]
+[WARN][upload.go:24]2022/12/29 14:14:30 [request Content-Type isn't multipart/form-data]
+[WARN][upload.go:24]2022/12/29 14:15:15 [http: no such file]
