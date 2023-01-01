@@ -1,86 +1,61 @@
 package gredis
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
-	"github.com/gomodule/redigo/redis"
+	"github.com/go-redis/redis/v8"
 
 	"github.com/EDDYCJY/go-gin-example/pkg/setting"
 )
 
-var RedisConn *redis.Pool
+var RedisConn redis.UniversalClient
+var ctx = context.Context(context.Background())
 
 // Setup Initialize the Redis instance
 func Setup() error {
-	RedisConn = &redis.Pool{
-		MaxIdle:     setting.RedisSetting.MaxIdle,
-		MaxActive:   setting.RedisSetting.MaxActive,
-		IdleTimeout: setting.RedisSetting.IdleTimeout,
-		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", setting.RedisSetting.Host)
-			if err != nil {
-				return nil, err
-			}
-			if setting.RedisSetting.Password != "" {
-				if _, err := c.Do("AUTH", setting.RedisSetting.Password); err != nil {
-					c.Close()
-					return nil, err
-				}
-			}
-			return c, err
-		},
-		TestOnBorrow: func(c redis.Conn, t time.Time) error {
-			_, err := c.Do("PING")
-			return err
-		},
+	RedisConn = redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs:      []string{setting.RedisSetting.Host},
+		PoolSize:   setting.RedisSetting.PoolSize,
+		MaxRetries: setting.RedisSetting.MaxRetries,
+		Password:   setting.RedisSetting.Password,
+	})
+	_, err := RedisConn.Ping(ctx).Result()
+	if err != nil {
+		return err
 	}
-
 	return nil
 }
 
 // Set a key/value
-func Set(key string, data interface{}, time int) error {
-	conn := RedisConn.Get()
-	defer conn.Close()
-
+func Set(key string, data interface{}, time time.Duration) error {
 	value, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-
-	_, err = conn.Do("SET", key, value)
+	statusCmd := RedisConn.Set(ctx, key, value, time)
+	_, err = statusCmd.Result()
 	if err != nil {
 		return err
 	}
-
-	_, err = conn.Do("EXPIRE", key, time)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
 // Exists check a key
 func Exists(key string) bool {
-	conn := RedisConn.Get()
-	defer conn.Close()
-
-	exists, err := redis.Bool(conn.Do("EXISTS", key))
+	intCmd := RedisConn.Exists(ctx, key)
+	_, err := intCmd.Result()
 	if err != nil {
 		return false
 	}
-
-	return exists
+	return true
 }
 
 // Get get a key
 func Get(key string) ([]byte, error) {
-	conn := RedisConn.Get()
-	defer conn.Close()
-
-	reply, err := redis.Bytes(conn.Do("GET", key))
+	stringCmd := RedisConn.Get(ctx, key)
+	reply, err := stringCmd.Bytes()
 	if err != nil {
 		return nil, err
 	}
@@ -90,28 +65,10 @@ func Get(key string) ([]byte, error) {
 
 // Delete delete a kye
 func Delete(key string) (bool, error) {
-	conn := RedisConn.Get()
-	defer conn.Close()
-
-	return redis.Bool(conn.Do("DEL", key))
-}
-
-// LikeDeletes batch delete
-func LikeDeletes(key string) error {
-	conn := RedisConn.Get()
-	defer conn.Close()
-
-	keys, err := redis.Strings(conn.Do("KEYS", "*"+key+"*"))
+	intCmd := RedisConn.Del(ctx, key)
+	_, err := intCmd.Result()
 	if err != nil {
-		return err
+		return false, err
 	}
-
-	for _, key := range keys {
-		_, err = Delete(key)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return true, nil
 }

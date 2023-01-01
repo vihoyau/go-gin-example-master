@@ -8,14 +8,17 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/astaxie/beego v1.9.3-0.20171218111859-f16688817aa4
 	github.com/boombuler/barcode v1.0.1-0.20180315051053-3c06908149f7
+	github.com/bsm/redislock v0.8.2
 	github.com/denisenkom/go-mssqldb v0.0.0-20190920000552-128d9f4ae1cd // indirect
 	github.com/dgrijalva/jwt-go v3.1.0+incompatible
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-ini/ini v1.32.1-0.20180214101753-32e4be5f41bb
+	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/go-redis/redis/v8 v8.8.0
+	github.com/go-redis/redis/v9 v9.0.0-rc.2 // indirect
 	github.com/go-sql-driver/mysql v1.4.1-0.20190510102335-877a9775f068 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
-	github.com/gomodule/redigo v2.0.1-0.20180401191855-9352ab68be13+incompatible
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/jinzhu/gorm v0.0.0-20180213101209-6e1387b44c64
 	github.com/jinzhu/inflection v0.0.0-20170102125226-1c35d901db3d // indirect
@@ -33,7 +36,6 @@ require (
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.40
 	github.com/unknwon/com v1.0.1
 	golang.org/x/image v0.0.0-20180628062038-cc896f830ced // indirect
-	golang.org/x/sys v0.0.0-20190921204832-2dccfee4fd3e // indirect
 	google.golang.org/appengine v1.6.3 // indirect
 	gopkg.in/ini.v1 v1.47.0 // indirect
 )

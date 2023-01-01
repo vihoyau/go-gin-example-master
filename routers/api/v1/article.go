@@ -68,13 +68,13 @@ func GetArticles(c *gin.Context) {
 	valid := validation.Validation{}
 
 	state := -1
-	if arg := c.PostForm("state"); arg != "" {
+	if arg, _ := c.GetQuery("state"); arg != "" {
 		state = com.StrTo(arg).MustInt()
 		valid.Range(state, 0, 1, "state")
 	}
 
 	tagId := -1
-	if arg := c.PostForm("tag_id"); arg != "" {
+	if arg, _ := c.GetQuery("tag_id"); arg != "" {
 		tagId = com.StrTo(arg).MustInt()
 		valid.Min(tagId, 1, "tag_id")
 	}

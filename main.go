@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/EDDYCJY/go-gin-example/pkg/gcos"
 	"log"
 	"net/http"
 
@@ -21,6 +22,7 @@ func init() {
 	logging.Setup()
 	gredis.Setup()
 	util.Setup()
+	gcos.Setup()
 }
 
 // @title Golang Gin API

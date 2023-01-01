@@ -2,17 +2,14 @@ package api
 
 import (
 	"context"
-	"github.com/EDDYCJY/go-gin-example/pkg/upload"
-	"github.com/gin-gonic/gin"
-	"github.com/tencentyun/cos-go-sdk-v5"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
-
+	"fmt"
 	"github.com/EDDYCJY/go-gin-example/pkg/app"
 	"github.com/EDDYCJY/go-gin-example/pkg/e"
+	"github.com/EDDYCJY/go-gin-example/pkg/gcos"
 	"github.com/EDDYCJY/go-gin-example/pkg/logging"
+	"github.com/EDDYCJY/go-gin-example/pkg/upload"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 // @Summary Import Image
@@ -65,31 +62,37 @@ func UploadImage2(c *gin.Context) {
 }
 
 func UploadImage(c *gin.Context) {
-	//
-	u, _ := url.Parse("https://qiuweihao-1257861918.cos.ap-nanjing.myqcloud.com")
-	b := &cos.BaseURL{BucketURL: u}
-	client := cos.NewClient(b, &http.Client{
-		//设置超时时间
-		Timeout: 100 * time.Second,
-		Transport: &cos.AuthorizationTransport{
-			//如实填写账号和密钥，也可以设置为环境变量
-			SecretID:  "AKIDxmNiphKjuwRggRxEG3cy5ybVBcolSuAC",
-			SecretKey: "rUs1HK9k6FCwToupgKrG6sdIuRnvoUyK",
-		},
+	appG := app.Gin{C: c}
+
+	file, Header, err := c.Request.FormFile("file")
+	filename := Header.Filename
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+	defer file.Close()
+
+	client := gcos.Setup()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Upload the file to COS
+	v, err := client.Object.Put(context.Background(), filename, file, nil)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err != nil {
+		panic(err)
+	}
+	gcos.Log_status(err)
+	fmt.Printf("Case2 done, %v\n", v)
+	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
+		"image_url":      v.Request.URL.Path,
+		"image_save_url": v.Request.URL.Host + v.Request.URL.Path,
 	})
-
-	name := "test/objectPut.go"
-	// 1. 通过字符串上传对象
-	f := strings.NewReader("test")
-	//
-	_, err := client.Object.Put(context.Background(), name, f, nil)
-	if err != nil {
-		panic(err)
-	}
-
-	// 上传本地文件
-	_, err = client.Object.PutFromFile(context.Background(), name, "/Users/qiuweihao/gopath/src/go-gin-example-master/test.txt", nil)
-	if err != nil {
-		panic(err)
-	}
 }

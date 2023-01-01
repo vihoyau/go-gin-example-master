@@ -2,11 +2,11 @@ package article_service
 
 import (
 	"encoding/json"
-
 	"github.com/EDDYCJY/go-gin-example/models"
 	"github.com/EDDYCJY/go-gin-example/pkg/gredis"
 	"github.com/EDDYCJY/go-gin-example/pkg/logging"
 	"github.com/EDDYCJY/go-gin-example/service/cache_service"
+	"time"
 )
 
 type Article struct {
@@ -56,7 +56,12 @@ func (a *Article) Edit() error {
 
 func (a *Article) Get() (*models.Article, error) {
 	var cacheArticle *models.Article
-
+	for i := 0; i < 100; i++ {
+		// 测试并发是否带来问题
+		go func(i int) {
+			gredis.RedisCluster("key", i)
+		}(i)
+	}
 	cache := cache_service.Article{ID: a.ID}
 	key := cache.GetArticleKey()
 	if gredis.Exists(key) {
@@ -73,8 +78,8 @@ func (a *Article) Get() (*models.Article, error) {
 	if err != nil {
 		return nil, err
 	}
+	gredis.Set(key, article, time.Second*3600)
 
-	gredis.Set(key, article, 3600)
 	return article, nil
 }
 

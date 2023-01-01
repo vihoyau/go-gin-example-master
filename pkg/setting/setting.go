@@ -53,13 +53,20 @@ var DatabaseSetting = &Database{}
 type Redis struct {
 	Host        string
 	Password    string
-	MaxIdle     int
-	MaxActive   int
+	PoolSize    int
+	MaxRetries  int
 	IdleTimeout time.Duration
 }
 
-var RedisSetting = &Redis{}
+type Cos struct {
+	SecretId  string
+	SecretKey string
+	Region    string
+	Bucket    string
+}
 
+var RedisSetting = &Redis{}
+var CosSetting = &Cos{}
 var cfg *ini.File
 
 // Setup initialize the configuration instance
@@ -74,6 +81,7 @@ func Setup() {
 	mapTo("server", ServerSetting)
 	mapTo("database", DatabaseSetting)
 	mapTo("redis", RedisSetting)
+	mapTo("cos", CosSetting)
 
 	AppSetting.ImageMaxSize = AppSetting.ImageMaxSize * 1024 * 1024
 	ServerSetting.ReadTimeout = ServerSetting.ReadTimeout * time.Second
