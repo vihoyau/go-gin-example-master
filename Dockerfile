@@ -5,5 +5,5 @@ WORKDIR $GOPATH/src/github.com/qiuweihao/go-gin-web
 COPY . $GOPATH/src/github.com/qiuweihao/go-gin-web
 RUN go build .
 
-EXPOSE 8000
+EXPOSE 8001
 ENTRYPOINT ["./go-gin-example"]
