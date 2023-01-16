@@ -5,5 +5,5 @@ WORKDIR $GOPATH/src/github.com/EDDYCJY/go-gin-example
 COPY . $GOPATH/src/github.com/EDDYCJY/go-gin-example
 RUN go build .
 
-EXPOSE 8000
+EXPOSE 8001
 ENTRYPOINT ["./go-gin-example"]
